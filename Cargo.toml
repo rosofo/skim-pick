@@ -1,5 +1,6 @@
 [package]
 name = "skim-pick"
+description = "Quickly call out to Skim to get user selection"
 authors = ["Robin Forbes"]
 version = "0.1.0"
 repository = "https://github.com/rosofo/skim-pick"
