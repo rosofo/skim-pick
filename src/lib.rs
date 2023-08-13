@@ -1,21 +1,9 @@
-use std::{
-    borrow::Cow,
-    collections::HashMap,
-    hash::Hash,
-    num,
-    str::FromStr,
-    sync::{mpsc::sync_channel, Arc},
-};
+use std::{borrow::Cow, sync::Arc};
 
-use crossbeam_channel::{bounded, unbounded};
-use skim::{prelude::SkimItemReader, Skim, SkimItem, SkimOptions};
+use crossbeam_channel::unbounded;
+use skim::{Skim, SkimItem, SkimOptions};
 
-fn main() {
-    let a = pick(["a", "b", "c"]);
-    let b = pick([1, 2, 3]);
-}
-
-fn pick<T: ToString + Send + Sync + 'static>(items: impl IntoIterator<Item = T>) -> Option<T> {
+pub fn pick<T: ToString + Send + Sync + 'static>(items: impl IntoIterator<Item = T>) -> Option<T> {
     let config = SkimOptions::default();
 
     let (tx, rx) = unbounded();
