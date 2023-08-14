@@ -2,7 +2,7 @@
 name = "skim-pick"
 description = "Quickly call out to Skim to get user selection"
 authors = ["Robin Forbes"]
-version = "0.1.1"
+version = "0.1.2"
 repository = "https://github.com/rosofo/skim-pick"
 edition = "2021"
 license = "MIT"

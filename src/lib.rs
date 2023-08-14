@@ -60,18 +60,3 @@ impl<T: ToString + Send + Sync + 'static> SkimItem for Item<T> {
         }
     }
 }
-
-mod tests {
-    
-
-    
-
-    #[test]
-    fn run_it() {
-        SkimOptionsBuilder::default()
-            .multi(true)
-            .build()
-            .unwrap()
-            .pick([1, 2, 3]);
-    }
-}
