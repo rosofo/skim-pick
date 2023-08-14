@@ -1,11 +1,35 @@
 use std::{borrow::Cow, sync::Arc};
 
 use crossbeam_channel::unbounded;
-use skim::{Skim, SkimItem, SkimOptions};
+use skim::{prelude::SkimOptionsBuilder, Skim, SkimItem, SkimOptions};
 
-pub fn pick<T: ToString + Send + Sync + 'static>(items: impl IntoIterator<Item = T>) -> Option<T> {
-    let config = SkimOptions::default();
+pub trait SkimPick {
+    fn pick<T: ToString + Send + Sync + 'static>(
+        self,
+        items: impl IntoIterator<Item = T>,
+    ) -> Option<T>;
+}
+impl SkimPick for SkimOptions<'_> {
+    fn pick<T: ToString + Send + Sync + 'static>(
+        self,
+        items: impl IntoIterator<Item = T>,
+    ) -> Option<T> {
+        pick_with_options(items, self)
+    }
+}
+impl SkimPick for SkimOptionsBuilder<'_> {
+    fn pick<T: ToString + Send + Sync + 'static>(
+        mut self,
+        items: impl IntoIterator<Item = T>,
+    ) -> Option<T> {
+        pick_with_options(items, self.build().ok()?)
+    }
+}
 
+pub fn pick_with_options<T: ToString + Send + Sync + 'static>(
+    items: impl IntoIterator<Item = T>,
+    options: SkimOptions,
+) -> Option<T> {
     let (tx, rx) = unbounded();
     for item in items {
         let item: Arc<dyn SkimItem> = Arc::new(Item(Some(item)));
@@ -13,12 +37,17 @@ pub fn pick<T: ToString + Send + Sync + 'static>(items: impl IntoIterator<Item =
     }
     drop(tx);
 
-    let choice = Skim::run_with(&config, Some(rx))?;
+    let choice = Skim::run_with(&options, Some(rx))?;
     let mut choice = choice.selected_items.into_iter().next()?;
     let item = Arc::get_mut(&mut choice)?
         .as_any_mut()
         .downcast_mut::<Item<_>>()?;
     item.0.take()
+}
+
+pub fn pick<T: ToString + Send + Sync + 'static>(items: impl IntoIterator<Item = T>) -> Option<T> {
+    let config = SkimOptions::default();
+    pick_with_options(items, config)
 }
 
 struct Item<T>(Option<T>);
@@ -29,5 +58,20 @@ impl<T: ToString + Send + Sync + 'static> SkimItem for Item<T> {
         } else {
             Cow::Borrowed("")
         }
+    }
+}
+
+mod tests {
+    
+
+    
+
+    #[test]
+    fn run_it() {
+        SkimOptionsBuilder::default()
+            .multi(true)
+            .build()
+            .unwrap()
+            .pick([1, 2, 3]);
     }
 }
